@@ -1,26 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component, Fragment } from 'react';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import 'typeface-roboto';
+import Exercises from './components/Exercises';
+import { muscles, exercises } from './store';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+    state = {
+        exercises,
+        exercise: {}
+    };
+
+    getExercisesByMuscles() {
+        return Object.entries(this.state.exercises.reduce((exercises, exercise) => {
+            const { muscles } = exercise;
+
+            exercises[muscles] = exercises[muscles] ? [...exercises[muscles], exercise] : [exercise];
+
+            return exercises;
+        }, {}));
+    };
+
+    handleCategorySelected = category => {
+        this.setState({
+            category
+        });
+    }
+
+    handleExerciseSelected = id => {
+        this.setState(({ exercises }) => ({
+            exercise: exercises.find(ex => ex.id === id)
+        }))
+    }
+
+    render() {
+        const exercises = this.getExercisesByMuscles(),
+        { category, exercise } = this.state;
+        return (
+            <Fragment>
+                <Header />
+                <Exercises 
+                    exercise={exercise}
+                    category={category}
+                    exercises={exercises}
+                    onSelect={this.handleExerciseSelected}
+                />
+                <Footer 
+                    category={category}
+                    muscles={muscles}
+                    onSelect={this.handleCategorySelected}
+                />        
+            </Fragment>
+        )
+    }
 }
 
 export default App;
